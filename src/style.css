@@ -1,0 +1,115 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+body {
+  margin: 0;
+  background: #0f1115;
+  color: #e7e9ee;
+}
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+.sub {
+  color: #9aa0ac;
+  margin-top: 0;
+  font-size: 0.9rem;
+}
+.card {
+  background: #1a1d24;
+  border: 1px solid #2a2e38;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+.card h2 {
+  font-size: 1.05rem;
+  margin: 0 0 1rem;
+}
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.8rem;
+  color: #9aa0ac;
+  gap: 0.3rem;
+}
+input,
+select {
+  background: #0f1115;
+  border: 1px solid #2a2e38;
+  border-radius: 8px;
+  color: #e7e9ee;
+  padding: 0.5rem;
+  font-size: 0.95rem;
+}
+button {
+  margin-top: 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+button:hover {
+  background: #2f6fe0;
+}
+.out {
+  margin-top: 1rem;
+  background: #0f1115;
+  border: 1px solid #2a2e38;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  min-height: 1.2rem;
+  font-size: 0.9rem;
+  color: #e7e9ee;
+}
+.out:empty {
+  display: none;
+}
+.out.error {
+  color: #ffb4b4;
+  border-color: #5a2a2a;
+}
+.result-headline {
+  font-size: 1.15rem;
+  color: #9be7a8;
+  margin-bottom: 0.75rem;
+}
+.result-headline strong {
+  font-size: 1.35rem;
+}
+.result-rows {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 1rem;
+  margin: 0;
+}
+.result-rows dt {
+  color: #9aa0ac;
+  font-size: 0.85rem;
+}
+.result-rows dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.result-note {
+  margin: 0.85rem 0 0;
+  padding-top: 0.65rem;
+  border-top: 1px solid #2a2e38;
+  font-size: 0.8rem;
+  color: #9aa0ac;
+  line-height: 1.5;
+}
