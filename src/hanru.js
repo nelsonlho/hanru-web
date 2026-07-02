@@ -3,37 +3,37 @@ import * as Astronomy from 'astronomy-engine';
 
 const D2R = Math.PI / 180;
 
-// ==================== 28宿距星 J2000 座標 ====================
-// 建議之後用 SIMBAD / Stellarium 精確確認（目前為常用標準值）
+// ==================== 28宿距星 座標 ====================
+// ra 依《星海詞林》二十八宿數據；dec 沿用常用標準值
 export const MANSION_DETERMINATIVES = {
-  角: { ra: 201.298, dec: -11.161 }, // α Vir (Spica)
-  亢: { ra: 202.85, dec: -9.55 }, // κ Vir
-  氐: { ra: 222.72, dec: -16.04 }, // α Lib (Zubenelgenubi)
-  房: { ra: 241.0, dec: -19.8 }, // π Sco
-  心: { ra: 247.35, dec: -26.43 }, // α Sco (Antares)
-  尾: { ra: 252.0, dec: -38.0 }, // μ¹ Sco (近似)
-  箕: { ra: 267.0, dec: -30.0 }, // γ Sgr (近似)
-  斗: { ra: 273.5, dec: -29.5 }, // φ Sgr
-  牛: { ra: 305.0, dec: -14.5 }, // β Cap
-  女: { ra: 322.0, dec: -5.0 }, // ε Aqr
-  虛: { ra: 328.0, dec: -5.5 }, // β Aqr
-  危: { ra: 334.0, dec: -0.5 }, // α Aqr
-  室: { ra: 345.0, dec: 15.0 }, // α Peg (Markab)
-  壁: { ra: 2.0, dec: 15.0 }, // γ Peg (Algenib)
-  奎: { ra: 10.0, dec: 24.0 }, // η And
-  婁: { ra: 28.5, dec: 20.5 }, // β Ari (Sheratan)
-  胃: { ra: 42.0, dec: 27.0 }, // 35 Ari
-  昴: { ra: 56.5, dec: 24.0 }, // 17 Tau
-  畢: { ra: 67.0, dec: 19.0 }, // ε Tau (Ain)
-  觜: { ra: 83.5, dec: 9.5 }, // λ Ori
-  参: { ra: 85.0, dec: -1.5 }, // ζ Ori (Alnitak)
-  井: { ra: 95.0, dec: 22.5 }, // μ Gem
-  鬼: { ra: 124.0, dec: 21.5 }, // θ Cnc
-  柳: { ra: 130.0, dec: -8.5 }, // δ Hya
-  星: { ra: 141.5, dec: -8.5 }, // α Hya (Alphard)
-  張: { ra: 150.0, dec: -15.0 }, // υ¹ Hya
-  翼: { ra: 165.0, dec: -18.5 }, // α Crt (Alkes)
-  軫: { ra: 183.0, dec: -17.5 }, // γ Crv (Gienah)
+  角: { ra: 188.0, dec: -11.161 }, // α Vir (Spica)
+  亢: { ra: 200.0, dec: -9.55 }, // κ Vir
+  氐: { ra: 209.0, dec: -16.04 }, // α Lib (Zubenelgenubi)
+  房: { ra: 225.0, dec: -19.8 }, // π Sco
+  心: { ra: 231.0, dec: -26.43 }, // α Sco (Antares)
+  尾: { ra: 237.0, dec: -38.0 }, // μ¹ Sco (近似)
+  箕: { ra: 256.0, dec: -30.0 }, // γ Sgr (近似)
+  斗: { ra: 266.0, dec: -29.5 }, // φ Sgr
+  牛: { ra: 291.0, dec: -14.5 }, // β Cap
+  女: { ra: 298.0, dec: -5.0 }, // ε Aqr
+  虛: { ra: 309.0, dec: -5.5 }, // β Aqr
+  危: { ra: 318.0, dec: -0.5 }, // α Aqr
+  室: { ra: 333.0, dec: 15.0 }, // α Peg (Markab)
+  壁: { ra: 350.0, dec: 15.0 }, // γ Peg (Algenib)
+  奎: { ra: 359.0, dec: 24.0 }, // η And
+  婁: { ra: 15.0, dec: 20.5 }, // β Ari (Sheratan)
+  胃: { ra: 27.0, dec: 27.0 }, // 35 Ari
+  昴: { ra: 42.0, dec: 24.0 }, // 17 Tau
+  畢: { ra: 53.0, dec: 19.0 }, // ε Tau (Ain)
+  觜: { ra: 70.0, dec: 9.5 }, // λ Ori
+  参: { ra: 71.0, dec: -1.5 }, // ζ Ori (Alnitak)
+  井: { ra: 81.0, dec: 22.5 }, // μ Gem
+  鬼: { ra: 112.0, dec: 21.5 }, // θ Cnc
+  柳: { ra: 116.0, dec: -8.5 }, // δ Hya
+  星: { ra: 129.0, dec: -8.5 }, // α Hya (Alphard)
+  張: { ra: 136.0, dec: -15.0 }, // υ¹ Hya
+  翼: { ra: 152.0, dec: -18.5 }, // α Crt (Alkes)
+  軫: { ra: 171.0, dec: -17.5 }, // γ Crv (Gienah)
 };
 
 // 漢朝古度：周天 365.25 度

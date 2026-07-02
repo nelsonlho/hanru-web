@@ -3,78 +3,121 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>古代入宿度 ⇄ 現代座標 轉換</title>
+    <title>入宿度 ⇄ 現代座標 · 二十八宿轉換儀</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
+    <div id="starfield" aria-hidden="true"></div>
+
     <main>
-      <h1>古代入宿度 ⇄ 現代座標 轉換</h1>
-      <p class="sub">以漢代 epoch 計算（含歲差），距星座標為 J2000 標準值。</p>
+      <header class="masthead">
+        <div class="masthead-rule" aria-hidden="true"><span>❋</span></div>
+        <h1>二十八宿轉換儀</h1>
+        <p class="sub">古代入宿度 ⇄ 現代座標</p>
+        <p class="sub-detail">以漢代 epoch 計算（含歲差）・距星座標為 J2000 標準值・周天 365¼ 古度</p>
+      </header>
 
-      <!-- 正向：現代 → 入宿度 -->
-      <section class="card">
-        <h2>現代座標 → 漢朝入宿度</h2>
-        <div class="row">
-          <label>宿名
-            <select id="fwd-mansion"></select>
-          </label>
-          <label>赤經 RA (度)
-            <input id="fwd-ra" type="number" step="any" value="201.3" />
-          </label>
-          <label>赤緯 Dec (度)
-            <input id="fwd-dec" type="number" step="any" value="-11.16" />
-          </label>
-          <label>曆元（年）
-            <input id="fwd-epoch" type="number" step="1" value="100" />
-          </label>
-        </div>
-        <button id="fwd-btn">計算入宿度</button>
-        <pre id="fwd-out" class="out"></pre>
-      </section>
+      <div class="layout">
+        <!-- 左：星盤 -->
+        <aside class="dial-panel">
+          <svg id="mansion-dial" viewBox="0 0 340 340" role="img" aria-label="二十八宿星盤"></svg>
+          <p class="dial-caption">二十八宿星盤　·　依 J2000 距星赤經排列，點宿名可選宿</p>
+        </aside>
 
-      <!-- 黃道輸入：黃經 → 入宿度（CALC-EX.md 流程）-->
-      <section class="card">
-        <h2>黃道座標 → 漢朝入宿度（黃經→赤經→入宿）</h2>
-        <div class="row">
-          <label>黃經 λ (度)
-            <input id="ecl-lambda" type="number" step="any" value="284" />
-          </label>
-          <label>黃緯 β (度)
-            <input id="ecl-beta" type="number" step="any" value="0" />
-          </label>
-          <label>黃赤交角 ε (度)
-            <input id="ecl-obliq" type="number" step="any" value="23.45" />
-          </label>
-          <label>曆元（年）
-            <input id="ecl-epoch" type="number" step="1" value="100" />
-          </label>
-          <label>宿名
-            <select id="ecl-mansion">
-              <option value="">自動判斷</option>
-            </select>
-          </label>
-        </div>
-        <button id="ecl-btn">計算入宿度</button>
-        <pre id="ecl-out" class="out"></pre>
-      </section>
+        <!-- 右：轉換器 -->
+        <section class="converter">
+          <nav class="tabs" role="tablist" aria-label="轉換模式">
+            <button class="tab active" role="tab" aria-selected="true" data-panel="panel-fwd">
+              <span class="tab-title">赤道 → 入宿</span>
+              <span class="tab-sub">現代座標</span>
+            </button>
+            <button class="tab" role="tab" aria-selected="false" data-panel="panel-ecl">
+              <span class="tab-title">黃道 → 入宿</span>
+              <span class="tab-sub">黃經黃緯</span>
+            </button>
+            <button class="tab" role="tab" aria-selected="false" data-panel="panel-rev">
+              <span class="tab-title">入宿 → 赤經</span>
+              <span class="tab-sub">反向推算</span>
+            </button>
+            <span class="tab-indicator" aria-hidden="true"></span>
+          </nav>
 
-      <!-- 反向：入宿度 → 現代 -->
-      <section class="card">
-        <h2>漢朝入宿度 → 現代近似赤經</h2>
-        <div class="row">
-          <label>宿名
-            <select id="rev-mansion"></select>
-          </label>
-          <label>入宿度 (古度)
-            <input id="rev-du" type="number" step="any" value="0" />
-          </label>
-          <label>曆元（年）
-            <input id="rev-epoch" type="number" step="1" value="100" />
-          </label>
-        </div>
-        <button id="rev-btn">計算現代赤經</button>
-        <pre id="rev-out" class="out"></pre>
-      </section>
+          <!-- 正向：現代 → 入宿度 -->
+          <div class="panel active" id="panel-fwd" role="tabpanel">
+            <p class="panel-desc">輸入恆星的 J2000 赤道座標，推算其在漢代曆元下屬何宿、入宿幾度。</p>
+            <div class="row">
+              <label>宿名
+                <select id="fwd-mansion"></select>
+              </label>
+              <label>赤經 RA（度）
+                <input id="fwd-ra" type="number" step="any" value="201.3" />
+              </label>
+              <label>赤緯 Dec（度）
+                <input id="fwd-dec" type="number" step="any" value="-11.16" />
+              </label>
+              <label>曆元（公元年）
+                <input id="fwd-epoch" type="number" step="1" value="100" />
+              </label>
+            </div>
+            <button class="calc-btn" id="fwd-btn">推算入宿度</button>
+            <div id="fwd-out" class="out"></div>
+          </div>
+
+          <!-- 黃道輸入：黃經 → 入宿度 -->
+          <div class="panel" id="panel-ecl" role="tabpanel" hidden>
+            <p class="panel-desc">依古法「黃經 → 赤經 → 入宿」流程：以黃赤交角 ε 換算赤經後定宿。</p>
+            <div class="row">
+              <label>黃經 λ（度）
+                <input id="ecl-lambda" type="number" step="any" value="284" />
+              </label>
+              <label>黃緯 β（度）
+                <input id="ecl-beta" type="number" step="any" value="0" />
+              </label>
+              <label>黃赤交角 ε（度）
+                <input id="ecl-obliq" type="number" step="any" value="23.45" />
+              </label>
+              <label>曆元（公元年）
+                <input id="ecl-epoch" type="number" step="1" value="100" />
+              </label>
+              <label>宿名
+                <select id="ecl-mansion">
+                  <option value="">自動判斷</option>
+                </select>
+              </label>
+            </div>
+            <button class="calc-btn" id="ecl-btn">推算入宿度</button>
+            <div id="ecl-out" class="out"></div>
+          </div>
+
+          <!-- 反向：入宿度 → 現代 -->
+          <div class="panel" id="panel-rev" role="tabpanel" hidden>
+            <p class="panel-desc">由古籍所載「某宿入幾度」，反推該星的現代近似赤經。</p>
+            <div class="row">
+              <label>宿名
+                <select id="rev-mansion"></select>
+              </label>
+              <label>入宿度（古度）
+                <input id="rev-du" type="number" step="any" value="0" />
+              </label>
+              <label>曆元（公元年）
+                <input id="rev-epoch" type="number" step="1" value="100" />
+              </label>
+            </div>
+            <button class="calc-btn" id="rev-btn">推算現代赤經</button>
+            <div id="rev-out" class="out"></div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="colophon">
+        <p>歲差計算採 astronomy-engine　·　古度＝今度 × 365.25 ⁄ 360</p>
+      </footer>
     </main>
     <script type="module" src="/src/main.js"></script>
   </body>
