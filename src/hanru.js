@@ -4,7 +4,16 @@ import * as Astronomy from 'astronomy-engine';
 const D2R = Math.PI / 180;
 
 // ==================== 28宿距星 座標 ====================
-// ra 依《星海詞林》二十八宿數據；dec 沿用常用標準值
+// ra 依《星海詞林》二十八宿數據；dec 沿用常用今世亮星標準值。
+//
+// ⚠ 待考（provenance 未定，勿據此下結論）：
+//  1. epoch 未明：星海詞林 ra 既非 J2000（角 188 ≠ Spica 201.3），
+//     亦非本碼歲差所得漢 100 年值（≈176.9）。其所屬春分點/年代待查。
+//  2. 混框架：ra 來自星海詞林、dec 來自今世亮星 J2000，二者異源。
+//  3. 下游 precessJ2000toEpoch 仍當這些座標為 J2000 再歲差；
+//     若星海詞林 ra 已是某 epoch 定值，則屬重複歲差，入宿度會偏。
+//  待確認星海詞林版本/epoch（或改採有據漢代星表：三統曆／後漢四分曆／
+//  開元占經石氏星經）後，再定是否保留 precessJ2000toEpoch 這一步。
 export const MANSION_DETERMINATIVES = {
   角: { ra: 188.0, dec: -11.161 }, // α Vir (Spica)
   亢: { ra: 200.0, dec: -9.55 }, // κ Vir
