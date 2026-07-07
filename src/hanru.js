@@ -3,46 +3,40 @@ import * as Astronomy from 'astronomy-engine';
 
 const D2R = Math.PI / 180;
 
-// ==================== 28宿距星 座標 ====================
-// ra 依《星海詞林》二十八宿數據；dec 沿用常用今世亮星標準值。
-//
-// ⚠ 待考（provenance 未定，勿據此下結論）：
-//  1. epoch 未明：星海詞林 ra 既非 J2000（角 188 ≠ Spica 201.3），
-//     亦非本碼歲差所得漢 100 年值（≈176.9）。其所屬春分點/年代待查。
-//  2. 混框架：ra 來自星海詞林、dec 來自今世亮星 J2000，二者異源。
-//  3. 下游 precessJ2000toEpoch 仍當這些座標為 J2000 再歲差；
-//     若星海詞林 ra 已是某 epoch 定值，則屬重複歲差，入宿度會偏。
-//  待確認星海詞林版本/epoch（或改採有據漢代星表：三統曆／後漢四分曆／
-//  開元占經石氏星經）後，再定是否保留 precessJ2000toEpoch 這一步。
+// ==================== 28宿 宿首（入宿 0 度點）座標 ====================
+// 依 iOS App「七政四餘」作者提供之《星海詞林》二十八宿入宿表（2026-07 QA 對照定案）。
+// ra/dec 為該表所載宿首赤經/赤緯（現代框架，與表列黃經 λ 同源）；
+// 註解記表列宮度與黃經。表列「宿1°」即宿首（入宿第一度之起點，本碼 0 基）。
+// 星宿赤緯表未載，依對徑（λ 差 180°，表值嚴格反號：翼/室、女/柳 可驗）取虛宿值反號補之。
 export const MANSION_DETERMINATIVES = {
-  角: { ra: 188.0, dec: -11.161 }, // α Vir (Spica)
-  亢: { ra: 200.0, dec: -9.55 }, // κ Vir
-  氐: { ra: 209.0, dec: -16.04 }, // α Lib (Zubenelgenubi)
-  房: { ra: 225.0, dec: -19.8 }, // π Sco
-  心: { ra: 231.0, dec: -26.43 }, // α Sco (Antares)
-  尾: { ra: 237.0, dec: -38.0 }, // μ¹ Sco (近似)
-  箕: { ra: 256.0, dec: -30.0 }, // γ Sgr (近似)
-  斗: { ra: 266.0, dec: -29.5 }, // φ Sgr
-  牛: { ra: 291.0, dec: -14.5 }, // β Cap
-  女: { ra: 298.0, dec: -5.0 }, // ε Aqr
-  虛: { ra: 309.0, dec: -5.5 }, // β Aqr
-  危: { ra: 318.0, dec: -0.5 }, // α Aqr
-  室: { ra: 333.0, dec: 15.0 }, // α Peg (Markab)
-  壁: { ra: 350.0, dec: 15.0 }, // γ Peg (Algenib)
-  奎: { ra: 359.0, dec: 24.0 }, // η And
-  婁: { ra: 15.0, dec: 20.5 }, // β Ari (Sheratan)
-  胃: { ra: 27.0, dec: 27.0 }, // 35 Ari
-  昴: { ra: 42.0, dec: 24.0 }, // 17 Tau
-  畢: { ra: 53.0, dec: 19.0 }, // ε Tau (Ain)
-  觜: { ra: 70.0, dec: 9.5 }, // λ Ori
-  参: { ra: 71.0, dec: -1.5 }, // ζ Ori (Alnitak)
-  井: { ra: 81.0, dec: 22.5 }, // μ Gem
-  鬼: { ra: 112.0, dec: 21.5 }, // θ Cnc
-  柳: { ra: 116.0, dec: -8.5 }, // δ Hya
-  星: { ra: 129.0, dec: -8.5 }, // α Hya (Alphard)
-  張: { ra: 136.0, dec: -15.0 }, // υ¹ Hya
-  翼: { ra: 152.0, dec: -18.5 }, // α Crt (Alkes)
-  軫: { ra: 171.0, dec: -17.5 }, // γ Crv (Gienah)
+  角: { ra: 189.1833, dec: -3.6413 }, // 表辰10° λ190
+  亢: { ra: 200.3167, dec: -7.9517 }, // 表辰22° λ202
+  氐: { ra: 208.85, dec: -11.0705 }, // 表卯1° λ211
+  房: { ra: 224.5167, dec: -16.201 }, // 表卯17° λ227
+  心: { ra: 230.5833, dec: -17.9047 }, // 表卯23° λ233
+  尾: { ra: 236.7667, dec: -19.4426 }, // 表卯29° λ239
+  箕: { ra: 256.95, dec: -22.8097 }, // 表寅18° λ258
+  斗: { ra: 267.8167, dec: -23.432 }, // 表寅28° λ268
+  牛: { ra: 294.8333, dec: -21.1709 }, // 表丑23° λ293
+  女: { ra: 301.0167, dec: -19.9408 }, // 表丑29° λ299
+  虛: { ra: 313.45, dec: -16.7922 }, // 表子11° λ311
+  危: { ra: 322.4167, dec: -14.0641 }, // 表子20° λ320
+  室: { ra: 336.8333, dec: -9.007 }, // 表亥5° λ335
+  壁: { ra: 352.65, dec: -2.9182 }, // 表亥22° λ352
+  奎: { ra: 0.9167, dec: 0.3648 }, // 表戌1° λ1
+  婁: { ra: 15.65, dec: 6.1626 }, // 表戌17° λ17
+  胃: { ra: 26.9333, dec: 10.3845 }, // 表戌29° λ29
+  昴: { ra: 41.5167, dec: 15.2942 }, // 表酉14° λ44
+  畢: { ra: 52.6233, dec: 18.4379 }, // 表酉25° λ55
+  觜: { ra: 70.4833, dec: 22.0575 }, // 表申12° λ72
+  参: { ra: 71.55, dec: 22.1786 }, // 表申13° λ73
+  井: { ra: 82.3667, dec: 23.2299 }, // 表申23° λ83
+  鬼: { ra: 115.8833, dec: 20.9792 }, // 表未24° λ114
+  柳: { ra: 120.1, dec: 20.1382 }, // 表未28° λ118
+  星: { ra: 133.45, dec: 16.7922 }, // 表午11° λ131（dec 補值，見上）
+  張: { ra: 140.4333, dec: 14.6837 }, // 表午18° λ138
+  翼: { ra: 155.9, dec: 9.3517 }, // 表巳4° λ154
+  軫: { ra: 173.5667, dec: 2.5556 }, // 表巳23° λ173
 };
 
 // 漢朝古度：周天 365.25 度
@@ -100,14 +94,18 @@ export function eclipticToEquatorial(lambdaDeg, betaDeg = 0, obliquityDeg = 23.4
   return { ra, dec };
 }
 
-// 給定「當期(epoch)赤經」，找所屬宿並算入宿度。
-// 距星座標為 J2000，會先歲差到該 epoch 再比較（與黃道輸入的當期框架一致）。
-// mansion 留空 = 自動判斷（取該星東側最近的距星，即星所在之宿）。
+// 宿首換算容差：表列黃經經 ε 換算之赤經與表列宿首赤經有 ≤0.03° 微差
+// （表作者所用 ε 與本頁預設 23.45 略異），宿界判定時視為同點，
+// 免得輸入恰為宿首之位置被判入前一宿。
+const BOUNDARY_EPS = 0.05;
+
+// 給定赤經（與宿首表同框架，即現代/表列框架），找所屬宿並算入宿度。
+// 宿首即《星海詞林》表值，為定界，不隨 epoch 歲差（epochYear 僅供回報顯示）。
+// mansion 留空 = 自動判斷（取該星西側最近的宿首，即星所在之宿）。
 export function epochRaToHanRudu(raAtEpoch, epochYear = 100, mansion = null) {
-  const time = epochTime(epochYear);
   const dets = Object.entries(MANSION_DETERMINATIVES).map(([name, d]) => ({
     name,
-    ra: precessJ2000toEpoch(d.ra, d.dec, time).ra,
+    ra: d.ra,
   }));
 
   let chosen;
@@ -115,14 +113,16 @@ export function epochRaToHanRudu(raAtEpoch, epochYear = 100, mansion = null) {
     chosen = dets.find((x) => x.name === mansion);
     if (!chosen) throw new Error(`未知宿名: ${mansion}`);
   } else {
-    // 自動：入宿度 = (星赤經 − 距星赤經) 向東為正，取最小非負者
+    // 自動：入宿度 = (星赤經 − 宿首赤經) 向東為正，取最小非負者
     for (const d of dets) {
-      const diff = ((raAtEpoch - d.ra) % 360 + 360) % 360;
+      let diff = ((raAtEpoch - d.ra) % 360 + 360) % 360;
+      if (diff >= 360 - BOUNDARY_EPS) diff = 0;
       if (!chosen || diff < chosen.diff) chosen = { ...d, diff };
     }
   }
 
-  const delta = ((raAtEpoch - chosen.ra) % 360 + 360) % 360;
+  let delta = ((raAtEpoch - chosen.ra) % 360 + 360) % 360;
+  if (delta > 180) delta -= 360; // 指定宿名時允許負值（星在宿首西側）
   const ancientDu = delta * (ANCIENT_DEGREES / 360);
 
   return {
@@ -158,7 +158,9 @@ export function eclipticToHanRudu(
   };
 }
 
-// ==================== 正向：現代(J2000) → 漢朝入宿度 ====================
+// ==================== 正向：現代赤道座標 → 入宿度 ====================
+// 輸入與宿首表同視為 J2000 框架；星與宿首同受歲差旋轉，
+// epoch 只帶入兩者間的差動歲差（同點輸入時恆為 0，任一 epoch 皆合表）。
 export function modernToHanRudu(raDeg, decDeg, mansion, epochYear = 100) {
   const det = MANSION_DETERMINATIVES[mansion];
   if (!det) throw new Error(`未知宿名: ${mansion}`);

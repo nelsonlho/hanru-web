@@ -49,6 +49,6 @@ Vercel 會自動偵測到這是 Vite 專案（Build 指令 `npm run build`、輸
 
 ## 已知待辦與注意事項
 
-- `src/hanru.js` 中的二十八宿距星座標是常用標準值，若需更精確可用 SIMBAD / Stellarium 核對。
-- 黃道輸入（`eclipticToHanRudu`）忠實重現 CALC-EX.md 的「黃經→赤經」公式（tan α = tan λ × cos ε），但算出的「所屬宿 / 入宿度」可能與古曆表（如範例的「斗18度」）不同：本程式用 J2000 標準星 + 精確歲差，傳統值來自歷史距星實測與宿界慣例。若要對齊傳統曆表，需把 `MANSION_DETERMINATIVES` 換成歷史距星位置。
+- `src/hanru.js` 的二十八宿宿首座標已於 2026-07-07 改採《星海詞林》二十八宿入宿表（iOS App「七政四餘」作者提供），經 QA 全 28 宿對照驗收；宿界為定界，黃道分頁不再對宿首做歲差。
+- 黃道輸入（`eclipticToHanRudu`）忠實重現 CALC-EX.md 的「黃經→赤經」公式（tan α = tan λ × cos ε）；範例「紫炁丑宮14度 → 斗18度」已列入測試並通過。
 - `new Astronomy.AstroTime(epochYear)` 的參數語意值得再確認：該函式庫將數字視為「J2000 之後的天數」，未必等同「公元年份」。功能可正常執行，但天文準確度建議覆核。

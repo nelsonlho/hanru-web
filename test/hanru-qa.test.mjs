@@ -1,23 +1,22 @@
-// QA 匯報測試（2026-07-04）
-// 來源：iOS App「七政四餘」作者提供之《星海詞林》二十八宿入宿表，
-// 與本網頁（二十八宿轉換儀）入宿度對照。
+// QA 驗收測試（2026-07-07 修正後）
+// 來源：iOS App「七政四餘」作者提供之《星海詞林》二十八宿入宿表。
+// 歷史：2026-07-04 QA 匯報各宿宿首入宿度偏差 −3.3 ~ +4.0 古度；
+//   診斷為（一）MANSION_DETERMINATIVES 與入宿表宿首不符、
+//   （二）黃道分頁對宿首重複歲差（偏 +25~33 古度）。
+//   2026-07-07 修正：宿首改採表列赤經/赤緯，黃道分頁宿界定界不歲差。
 //
-// QA 操作流程（已由重現實驗確認）：
-//   1. 黃道分頁：輸入 宮度 換算之黃經（ε=23.45、epoch=100、β=0），
-//      抄下頁面顯示的「換算當期赤經/赤緯」。
-//   2. 赤道分頁：把該赤經/赤緯填入（頁面視之為 J2000）、指定宿名、epoch=100，
-//      得到匯報中的「網頁入宿」值（可為負）。
-//
-// 三個套件：
-//   A. 重現 QA 匯報 —— 鎖住現況數值，證明匯報可完整重現（應恆過）。
-//   B. 入宿表期望 —— 宿初度應入宿 0 度；現況必敗，敗即匯報之差異本體。
-//      修正資料模型後此套件應轉綠。
-//   C. 差異之因 —— 驗證診斷結論（應恆過）。
+// 驗收準則（依 QA 操作流程）：
+//   A. 赤道分頁：輸入表列宿首赤經/赤緯 → 入宿 0（QA 即此流程）。
+//   B. 黃道分頁：輸入表列黃經（ε=23.45、β=0）→ 入宿 ≈ 0，
+//      殘差僅來自表作者所用 ε 與 23.45 之微異（≤0.15 古度）。
+//   C. 黃道分頁自動判斷：宿首位置應判為本宿。
+//   D. 反向與正向互逆。
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   eclipticToHanRudu,
   modernToHanRudu,
+  hanRuduToModern,
   MANSION_DETERMINATIVES,
 } from '../src/hanru.js';
 
@@ -25,29 +24,30 @@ import {
 const GONG = { 寅: 240, 丑: 270, 子: 300, 亥: 330, 戌: 0, 酉: 30, 申: 60, 未: 90, 午: 120, 巳: 150, 辰: 180, 卯: 210 };
 const lambdaOf = (gong, du) => GONG[gong] + du;
 
-const EPOCH = 100;
 const OBLIQ = 23.45;
 
-// ==================== QA 匯報原始資料 ====================
-// webRa/webDec：QA 抄錄之頁面換算值（有載才填，含 QA 之抄錄誤差，如斗寅26 dec）。
-// webRudu：QA 匯報之「網頁入宿」。
-const QA_ROWS = [
-  { m: '斗', gong: '寅', du: 28, webRudu: 3.05, webRa: 267.8167, webDec: -23.432 },
-  { m: '斗', gong: '寅', du: 27, webRudu: 1.98, webRa: 266.7167, webDec: -23.4092 },
-  { m: '斗', gong: '寅', du: 26, webRudu: 0.32, webRa: 265.6333, webDec: -26.3673 },
-  { m: '觜', gong: '申', du: 12, webRudu: -1.57 },
-  { m: '觜', gong: '申', du: 13, webRudu: -0.57, webRa: 71.55, webDec: 22.1786 },
-  { m: '参', gong: '申', du: 13, webRudu: -3.31 },
-  { m: '井', gong: '申', du: 23, webRudu: 1.19 },
-  { m: '鬼', gong: '未', du: 24, webRudu: 3.97 },
-  { m: '柳', gong: '未', du: 28, webRudu: -1.23, webRa: 120.1 },
-  { m: '星', gong: '午', du: 11, webRudu: 0.22, webRa: 133.45 },
-  { m: '張', gong: '午', du: 18, webRudu: -0.14, webRa: 140.4333, webDec: 14.6837 },
-];
-
-// 入宿表所載各宿初度（宿界）
-const TABLE_BOUNDARY = [
+// ==================== 入宿表全 28 宿宿首 ====================
+// gong/du：表列宮度；ra/dec：表列宿首赤經/赤緯（星 dec 為對徑補值）。
+const TABLE = [
+  { m: '角', gong: '辰', du: 10 },
+  { m: '亢', gong: '辰', du: 22 },
+  { m: '氐', gong: '卯', du: 1 },
+  { m: '房', gong: '卯', du: 17 },
+  { m: '心', gong: '卯', du: 23 },
+  { m: '尾', gong: '卯', du: 29 },
+  { m: '箕', gong: '寅', du: 18 },
   { m: '斗', gong: '寅', du: 28 },
+  { m: '牛', gong: '丑', du: 23 },
+  { m: '女', gong: '丑', du: 29 },
+  { m: '虛', gong: '子', du: 11 },
+  { m: '危', gong: '子', du: 20 },
+  { m: '室', gong: '亥', du: 5 },
+  { m: '壁', gong: '亥', du: 22 },
+  { m: '奎', gong: '戌', du: 1 },
+  { m: '婁', gong: '戌', du: 17 },
+  { m: '胃', gong: '戌', du: 29 },
+  { m: '昴', gong: '酉', du: 14 },
+  { m: '畢', gong: '酉', du: 25 },
   { m: '觜', gong: '申', du: 12 },
   { m: '参', gong: '申', du: 13 },
   { m: '井', gong: '申', du: 23 },
@@ -55,76 +55,67 @@ const TABLE_BOUNDARY = [
   { m: '柳', gong: '未', du: 28 },
   { m: '星', gong: '午', du: 11 },
   { m: '張', gong: '午', du: 18 },
+  { m: '翼', gong: '巳', du: 4 },
+  { m: '軫', gong: '巳', du: 23 },
 ];
 
-// 依 QA 流程算出「網頁入宿」：優先用 QA 抄錄之 ra/dec，缺者以黃道分頁換算補齊。
-function webRuduViaQaFlow(row) {
-  const ecl = eclipticToHanRudu(lambdaOf(row.gong, row.du), 0, EPOCH, OBLIQ, row.m);
-  const ra = row.webRa ?? ecl.raAtEpoch;
-  const dec = row.webDec ?? ecl.decAtEpoch;
-  return modernToHanRudu(ra, dec, row.m, EPOCH).ancientDu;
-}
+// ==================== A. 赤道分頁：表列宿首座標 → 入宿 0 ====================
+describe('A. 赤道分頁：宿首赤經/赤緯 → 入宿 0 古度（QA 流程，任一 epoch）', () => {
+  for (const { m } of TABLE) {
+    const det = MANSION_DETERMINATIVES[m];
+    for (const epoch of [100, 2000]) {
+      test(`${m} 宿首（ra=${det.ra}, dec=${det.dec}）epoch=${epoch} → 0`, () => {
+        const got = modernToHanRudu(det.ra, det.dec, m, epoch).ancientDu;
+        assert.ok(Math.abs(got) <= 0.01, `入宿 ${got} 古度，應為 0`);
+      });
+    }
+  }
+});
 
-// ==================== A. 重現 QA 匯報 ====================
-describe('A. 重現 QA 匯報（現況鎖定，應恆過）', () => {
-  for (const row of QA_ROWS) {
-    const exact = row.webRa != null && row.webDec != null;
-    // QA 有完整抄錄 ra/dec 者可精確重現（±0.01）；
-    // 缺 dec 者以換算值補，容差放寬至 ±0.15（QA 手抄精度）。
-    const tol = exact ? 0.01 : 0.15;
-    test(`${row.m} 表${row.gong}${row.du}° → 網頁入宿 ${row.webRudu}（±${tol}）`, () => {
-      const got = webRuduViaQaFlow(row);
+// ==================== B. 黃道分頁：表列黃經 → 入宿 ≈ 0 ====================
+describe('B. 黃道分頁：宿首黃經 → 入宿 ≈ 0 古度', () => {
+  for (const b of TABLE) {
+    const lambda = lambdaOf(b.gong, b.du);
+    test(`${b.m} 宿首（${b.gong}${b.du}° λ=${lambda}）→ |入宿| ≤ 0.15`, () => {
+      const r = eclipticToHanRudu(lambda, 0, 100, OBLIQ, b.m);
       assert.ok(
-        Math.abs(got - row.webRudu) <= tol,
-        `重現值 ${got} ≠ QA 匯報 ${row.webRudu}（差 ${(got - row.webRudu).toFixed(2)}）`,
+        Math.abs(r.ancientDu) <= 0.15,
+        `入宿 ${r.ancientDu} 古度，應 ≈ 0（宿首）`,
       );
     });
   }
 });
 
-// ==================== B. 入宿表期望（現況必敗 = 匯報之差異）====================
-describe('B. 入宿表期望：宿初度應入宿 0 度（待修，現況紅）', () => {
-  for (const b of TABLE_BOUNDARY) {
+// ==================== C. 黃道分頁自動判斷 ====================
+describe('C. 黃道分頁自動判斷：宿首位置應判為本宿', () => {
+  for (const b of TABLE) {
     const lambda = lambdaOf(b.gong, b.du);
-
-    test(`${b.m} 初度（${b.gong}${b.du}° λ=${lambda}）黃道分頁指定宿 → 入宿 ≈ 0 古度`, () => {
-      const r = eclipticToHanRudu(lambda, 0, EPOCH, OBLIQ, b.m);
-      assert.ok(
-        Math.abs(r.ancientDu) <= 0.3,
-        `入宿 ${r.ancientDu} 古度，應 ≈ 0（宿初度）`,
-      );
-    });
-
-    test(`${b.m} 初度（λ=${lambda}）黃道分頁自動判斷 → 應判為 ${b.m} 宿`, () => {
-      const r = eclipticToHanRudu(lambda, 0, EPOCH, OBLIQ, null);
+    test(`${b.m}（λ=${lambda}）自動判斷 → ${b.m}`, () => {
+      const r = eclipticToHanRudu(lambda, 0, 100, OBLIQ, null);
       assert.equal(r.mansion, b.m, `自動判斷為 ${r.mansion}，應為 ${b.m}`);
     });
   }
 });
 
-// ==================== C. 差異之因（診斷結論，應恆過）====================
-describe('C. 差異之因', () => {
-  test('因一：星海詞林值實為黃道宿界（黃經），非赤經 —— 表初度λ − 星海值 恆等於 2°', () => {
-    for (const b of TABLE_BOUNDARY) {
-      const diff = lambdaOf(b.gong, b.du) - MANSION_DETERMINATIVES[b.m].ra;
-      assert.equal(diff, 2, `${b.m}: 表λ ${lambdaOf(b.gong, b.du)} − 星海 ${MANSION_DETERMINATIVES[b.m].ra} = ${diff}，非 2`);
-    }
-  });
+// ==================== D. 反向 ↔ 正向互逆 ====================
+describe('D. 反向（入宿度→赤經）與正向互逆', () => {
+  for (const [m, du] of [['角', 5], ['斗', 17.65], ['觜', 0.5], ['軫', 10]]) {
+    test(`${m} 入宿 ${du} 古度 → 赤經 → 入宿 ${du}`, () => {
+      const rev = hanRuduToModern(m, du, 100);
+      const fwd = modernToHanRudu(rev.approximateModernRA, rev.approximateModernDec, m, 100);
+      assert.ok(Math.abs(fwd.ancientDu - du) <= 0.02, `回程 ${fwd.ancientDu} ≠ ${du}`);
+    });
+  }
+});
 
-  test('因二：黃道分頁指定宿 全面偏 +26~34 古度 —— 距星被當 J2000 再歲差（雙重歲差）', () => {
-    for (const b of TABLE_BOUNDARY) {
-      const r = eclipticToHanRudu(lambdaOf(b.gong, b.du), 0, EPOCH, OBLIQ, b.m);
-      assert.ok(
-        r.ancientDu > 24 && r.ancientDu < 34,
-        `${b.m}: 黃道分頁入宿 ${r.ancientDu} 古度，偏移不在 24~34 區間（診斷失準）`,
-      );
-    }
-  });
-
-  test('因三：赤道分頁殘差 ±4° 隨 dec 漂移 —— dec 異源（今世值）滲入歲差旋轉', () => {
-    // 同一赤經、不同 dec，入宿度可差 5 古度以上（柳宿實測）：
-    const a = modernToHanRudu(120.1, 20.57, '柳', EPOCH).ancientDu; // QA 換算 dec
-    const c = modernToHanRudu(120.1, -8.5, '柳', EPOCH).ancientDu; // 程式距星 dec
-    assert.ok(Math.abs(a - c) > 5, `dec 敏感度僅 ${Math.abs(a - c).toFixed(2)} 古度，診斷失準`);
+// ==================== E. CALC-EX.md 古例 ====================
+describe('E. CALC-EX.md 例：紫炁 丑宮14度（λ=284）', () => {
+  test('黃道分頁 → 斗宿，入宿落在第 18 古度（17~18）', () => {
+    const r = eclipticToHanRudu(284, 0, 100, OBLIQ, null);
+    assert.equal(r.mansion, '斗');
+    assert.ok(
+      r.ancientDu >= 17 && r.ancientDu < 18,
+      `入宿 ${r.ancientDu}，例載「斗木18度」應在 [17,18)`,
+    );
   });
 });

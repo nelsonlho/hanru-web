@@ -100,11 +100,12 @@ let dialCenterChar, dialCenterSub;
   sorted.forEach((m, i) => {
     const next = sorted[(i + 1) % sorted.length];
     const span = (next.ra - m.ra + 360) % 360;
-    const a1 = m.ra + DIAL.gapDeg;
-    const a2 = m.ra + span - DIAL.gapDeg;
+    const gap = Math.min(DIAL.gapDeg, span / 4); // 窄宿（如觜，寬約 1°）防弧線反轉
+    const a1 = m.ra + gap;
+    const a2 = m.ra + span - gap;
     const [x1, y1] = polar(a1, DIAL.arcR);
     const [x2, y2] = polar(a2, DIAL.arcR);
-    const large = span - 2 * DIAL.gapDeg > 180 ? 1 : 0;
+    const large = span - 2 * gap > 180 ? 1 : 0;
 
     const g = svgEl('g', { class: 'seg' });
     g.appendChild(
@@ -234,10 +235,10 @@ document.getElementById('ecl-btn').addEventListener('click', () => {
         { label: '黃赤交角 ε', value: deg(r.obliquityDeg) },
         { label: '換算當期赤經', value: deg(r.raAtEpoch) },
         { label: '換算當期赤緯', value: deg(r.decAtEpoch) },
-        { label: '距星·當期赤經', value: deg(r.detRaAtEpoch) },
+        { label: '宿首赤經（表值）', value: deg(r.detRaAtEpoch) },
         { label: '採用曆元', value: `公元 ${r.epochYear} 年` },
       ],
-      note: `黃經 ${r.lambdaDeg}° 經黃赤交角換算為赤經 ${r.raAtEpoch}°，落在 ${r.mansion} 宿。`,
+      note: `黃經 ${r.lambdaDeg}° 經黃赤交角換算為赤經 ${r.raAtEpoch}°，落在 ${r.mansion} 宿（宿界依《星海詞林》入宿表，定界不歲差）。`,
     });
     setDialActive(r.mansion, `入宿 ${r.ancientDu} 度`);
   } catch (e) {
